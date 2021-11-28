@@ -123,67 +123,135 @@ def main():
 
     userInput = input("Enter a virtual address: ")
 
-    while userInput != 'exit':
-        bitOffset = getOffset(newTable)
+    if sys.argv[2] != 'clk':
+        while userInput != 'exit':
+            bitOffset = getOffset(newTable)
 
-        hexFind = "0x"
+            hexFind = "0x"
 
-        choppedBinary = ''
-        if hexFind in userInput:
-            hexInput = ''
-            print("Hex address entered...translating...")
-            for i in range(2, len(userInput)):
-                hexInput += userInput[i].lower()
+            choppedBinary = ''
+            if hexFind in userInput:
+                hexInput = ''
+                print("Hex address entered...translating...")
+                for i in range(2, len(userInput)):
+                    hexInput += userInput[i].lower()
 
-            binaryString = hexToBinary(hexInput)
+                binaryString = hexToBinary(hexInput)
 
-        else:
-            binaryString = decimalToBinary(int(userInput))
+            else:
+                binaryString = decimalToBinary(int(userInput))
 
-        if (len(binaryString) < newTable.numBitsInVirtualAddress):
-            numZerosPading = newTable.numBitsInVirtualAddress - len(binaryString)
-            padding = ''
-            for i in range(0, numZerosPading):
-                padding += '0'
+            if (len(binaryString) < newTable.numBitsInVirtualAddress):
+                numZerosPading = newTable.numBitsInVirtualAddress - len(binaryString)
+                padding = ''
+                for i in range(0, numZerosPading):
+                    padding += '0'
 
-            binaryString = padding + binaryString
+                binaryString = padding + binaryString
 
-        elif (len(binaryString) > newTable.numBitsInVirtualAddress):
-            for i in range(len(binaryString) - newTable.numBitsInVirtualAddress, len(binaryString)):
-                choppedBinary += binaryString[i]
+            elif (len(binaryString) > newTable.numBitsInVirtualAddress):
+                for i in range(len(binaryString) - newTable.numBitsInVirtualAddress, len(binaryString)):
+                    choppedBinary += binaryString[i]
 
-            binaryString = choppedBinary
+                binaryString = choppedBinary
 
-        offsetBits = ''
-        prependBits = ''
+            offsetBits = ''
+            prependBits = ''
 
-        for i in range(0, len(binaryString) - bitOffset):
-            prependBits += binaryString[i]
+            for i in range(0, len(binaryString) - bitOffset):
+                prependBits += binaryString[i]
 
-        for i in range(len(binaryString) - bitOffset, len(binaryString)):
-            offsetBits += binaryString[i]
+            for i in range(len(binaryString) - bitOffset, len(binaryString)):
+                offsetBits += binaryString[i]
 
-        translatedPageIndex = binaryToDecimal(prependBits)
-        if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
-            translatedPageIndex].accessPermissions != 0):
-            print("DISK")
-            exit(1)
-        if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
-            translatedPageIndex].accessPermissions == 0):
-            print("SEGFAULT")
-            exit(1)
+            translatedPageIndex = binaryToDecimal(prependBits)
+            if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
+                translatedPageIndex].accessPermissions != 0):
+                print("DISK")
+                exit(1)
+            if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
+                translatedPageIndex].accessPermissions == 0):
+                print("SEGFAULT")
+                exit(1)
 
-        frameNum = newTable.pageTableRowList[translatedPageIndex].frameNumber
+            frameNum = newTable.pageTableRowList[translatedPageIndex].frameNumber
 
-        frameNumToBin = decimalToBinary(frameNum)
+            frameNumToBin = decimalToBinary(frameNum)
 
-        physAddress = frameNumToBin + offsetBits
+            physAddress = frameNumToBin + offsetBits
 
-        decimalPhysAddress = binaryToDecimal(physAddress)
+            decimalPhysAddress = binaryToDecimal(physAddress)
 
-        print(decimalPhysAddress)
+            print(decimalPhysAddress)
 
-        userInput = input("Enter a virtual address: ")
+            userInput = input("Enter a virtual address: ")
+    else:
+        print("CLOCK SIM ACTIVATED\n-------------------\n")
+        while userInput != 'exit':
+            bitOffset = getOffset(newTable)
+
+            hexFind = "0x"
+
+            choppedBinary = ''
+            if hexFind in userInput:
+                hexInput = ''
+                # print("Hex address entered...translating...")
+                for i in range(2, len(userInput)):
+                    hexInput += userInput[i].lower()
+
+                binaryString = hexToBinary(hexInput)
+
+            else:
+                binaryString = decimalToBinary(int(userInput))
+
+            if (len(binaryString) < newTable.numBitsInVirtualAddress):
+                numZerosPading = newTable.numBitsInVirtualAddress - len(binaryString)
+                padding = ''
+                for i in range(0, numZerosPading):
+                    padding += '0'
+
+                binaryString = padding + binaryString
+
+            elif len(binaryString) > newTable.numBitsInVirtualAddress:
+                for i in range(len(binaryString) - newTable.numBitsInVirtualAddress, len(binaryString)):
+                    choppedBinary += binaryString[i]
+
+                binaryString = choppedBinary
+
+            offsetBits = ''
+            prependBits = ''
+
+            for i in range(0, len(binaryString) - bitOffset):
+                prependBits += binaryString[i]
+
+            for i in range(len(binaryString) - bitOffset, len(binaryString)):
+                offsetBits += binaryString[i]
+
+            translatedPageIndex = binaryToDecimal(prependBits)
+
+            if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
+                translatedPageIndex].accessPermissions != 0):
+                print("PAGEFAULT")
+                print("NEED TO DO LOGIC FOR CLOCK SIM IN HERE")
+                exit(1)
+
+            if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
+                translatedPageIndex].accessPermissions == 0):
+                print("SEGFAULT")
+                exit(1)
+
+            frameNum = newTable.pageTableRowList[translatedPageIndex].frameNumber
+
+            frameNumToBin = decimalToBinary(frameNum)
+
+            physAddress = frameNumToBin + offsetBits
+
+            decimalPhysAddress = binaryToDecimal(physAddress)
+
+            print(decimalPhysAddress)
+
+            userInput = input("Enter a virtual address: ")
+
 
 
 main()
