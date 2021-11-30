@@ -264,23 +264,21 @@ def main():
                         print(decimalPhysAddress)
 
 
-                #exit(1)
 
             else:
                 if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
                     translatedPageIndex].accessPermissions == 0):
-                   print("SEGFAULT")
-                   exit(1)
+                    print("SEGFAULT")
+                else:
+                    frameNum = newTable.pageTableRowList[translatedPageIndex].frameNumber
 
-                frameNum = newTable.pageTableRowList[translatedPageIndex].frameNumber
+                    frameNumToBin = decimalToBinary(frameNum)
 
-                frameNumToBin = decimalToBinary(frameNum)
+                    physAddress = frameNumToBin + offsetBits
 
-                physAddress = frameNumToBin + offsetBits
+                    decimalPhysAddress = binaryToDecimal(physAddress)
 
-                decimalPhysAddress = binaryToDecimal(physAddress)
-
-                print(decimalPhysAddress)
+                    print(decimalPhysAddress)
 
             userInput = input("Enter a virtual address: ")
 
