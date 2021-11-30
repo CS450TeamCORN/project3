@@ -11,7 +11,7 @@ class PageTableRow:
 
 class PageTable:
     def __init__(self, _numBitsInVirtualAddress, _numBitsInPhysicalAddress, _sizeOfPageBytes):
-        self.numBitsInVirtualAddress = _numBitsInPhysicalAddress
+        self.numBitsInVirtualAddress = _numBitsInVirtualAddress
         self.numBitsInPhysicalAddress = _numBitsInPhysicalAddress
         self.sizeOfPageBytes = _sizeOfPageBytes
         self.pageTableRowList = []
@@ -187,6 +187,12 @@ def main():
             userInput = input("Enter a virtual address: ")
     else:
         print("CLOCK SIM ACTIVATED\n-------------------\n")
+        clock = []
+        clockPos = 0
+        for i in range(0, len(pageTableRows)):
+            if newTable.pageTableRowList[i].isPageValid == 1:
+                clock.append(i)
+
         while userInput != 'exit':
             bitOffset = getOffset(newTable)
 
@@ -232,23 +238,47 @@ def main():
             if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
                 translatedPageIndex].accessPermissions != 0):
                 print("PAGEFAULT")
-                print("NEED TO DO LOGIC FOR CLOCK SIM IN HERE")
-                exit(1)
+                finished = False
+                while not finished:
+                    if newTable.pageTableRowList[clock[clockPos]].pageRecentlyUsed == 1:
+                        newTable.pageTableRowList[clock[clockPos]].pageRecentlyUsed = 0
+                        clockPos += 1
+                    else:
+                        newTable.pageTableRowList[translatedPageIndex].pageRecentlyUsed = 1
+                        newTable.pageTableRowList[translatedPageIndex].accessPermissions = newTable.pageTableRowList[clock[clockPos]].accessPermissions
+                        newTable.pageTableRowList[translatedPageIndex].isPageValid = newTable.pageTableRowList[clock[clockPos]].isPageValid
+                        newTable.pageTableRowList[translatedPageIndex].frameNumber = newTable.pageTableRowList[clock[clockPos]].frameNumber
 
-            if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
-                translatedPageIndex].accessPermissions == 0):
-                print("SEGFAULT")
-                exit(1)
+                        clock.remove(clock[clockPos])
+                        clock.append(translatedPageIndex)
+                        finished = True
 
-            frameNum = newTable.pageTableRowList[translatedPageIndex].frameNumber
+                        frameNum = newTable.pageTableRowList[clock[clockPos]].frameNumber
 
-            frameNumToBin = decimalToBinary(frameNum)
+                        frameNumToBin = decimalToBinary(frameNum)
 
-            physAddress = frameNumToBin + offsetBits
+                        physAddress = frameNumToBin + offsetBits
 
-            decimalPhysAddress = binaryToDecimal(physAddress)
+                        decimalPhysAddress = binaryToDecimal(physAddress)
 
-            print(decimalPhysAddress)
+                        print(decimalPhysAddress)
+
+
+
+            else:
+                if (newTable.pageTableRowList[translatedPageIndex].isPageValid == 0 and newTable.pageTableRowList[
+                    translatedPageIndex].accessPermissions == 0):
+                    print("SEGFAULT")
+                else:
+                    frameNum = newTable.pageTableRowList[translatedPageIndex].frameNumber
+
+                    frameNumToBin = decimalToBinary(frameNum)
+
+                    physAddress = frameNumToBin + offsetBits
+
+                    decimalPhysAddress = binaryToDecimal(physAddress)
+
+                    print(decimalPhysAddress)
 
             userInput = input("Enter a virtual address: ")
 
