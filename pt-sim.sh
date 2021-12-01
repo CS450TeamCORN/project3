@@ -7,4 +7,6 @@ echo "Using input file $1"
 # ./pt-sim.x $1
 # and it will read from stdin, as normal
 
+python3 main.py $1
+
 
