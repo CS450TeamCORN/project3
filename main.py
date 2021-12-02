@@ -67,10 +67,6 @@ def decimalToBinary(n):
     return bin(n).replace("0b", "")
 
 
-def reverseStr(_str):
-    return _str[::-1]
-
-
 def hexToBinary(init_string):
     # Initialising hex string
 
@@ -92,20 +88,6 @@ def getOffset(pageTable):
             _sizeOfPageBytes /= 2
             offset = offset + 1
     return offset
-
-
-def getNumberPages(pageTable, _offset):
-    _numBitsVirtual = pageTable.numBitsInVirtualAddress
-    intermediaryConv = _numBitsVirtual - _offset
-
-    return pow(2, intermediaryConv)
-
-
-def getNumberFrames(pageTable, _offset):
-    _numBitsPhysical = pageTable.numBitsInPhysicalAddress
-    intermediaryConv = _numBitsPhysical - _offset
-
-    return pow(2, intermediaryConv)
 
 
 def main():
@@ -275,6 +257,5 @@ def main():
                 userInput = input()
     except EOFError:
         exit(1)
-
 
 main()
